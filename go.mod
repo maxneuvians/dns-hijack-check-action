@@ -1,4 +1,4 @@
-module github.com/maxneuvians/dns-hijack-check-action
+module dns-hijack-check-action
 
 go 1.21.13
 
