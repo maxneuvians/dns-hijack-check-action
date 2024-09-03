@@ -1,0 +1,7 @@
+name: "DNS hijack check action"
+description: "Checks a list of domains if they can be hijacked"
+runs:
+  using: "composite"
+  steps:
+    - run: sudo -E $GITHUB_ACTION_PATH/release/latest/dns-hijack-check-action
+      shell: bash

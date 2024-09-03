@@ -1,10 +1,21 @@
-package dns_hijack_check
+package main
+
+import (
+	"strings"
+)
 
 type fingerprint struct {
 	cname       []string
 	name        string
 	nxdomain    bool
 	fingerprint string
+}
+
+type vulnerableDomain struct {
+	Domain    string
+	Cname     []string
+	Name      string
+	Immediate bool
 }
 
 var fingerprints = []fingerprint{
@@ -130,7 +141,6 @@ var fingerprints = []fingerprint{
 	},
 	{
 		cname: []string{
-			"cloudapp.net",
 			"cloudapp.azure.com",
 			"azurewebsites.net",
 			"blob.core.windows.net",
@@ -233,4 +243,22 @@ var fingerprints = []fingerprint{
 		name:        "Worksites",
 		fingerprint: "Hello! Sorry, but the website you&rsquo;re looking for doesn&rsquo;t exist.",
 	},
+}
+
+func matchFingerprints(r result) *vulnerableDomain {
+	for _, fp := range fingerprints {
+		for _, cname := range fp.cname {
+			for _, c := range r.Cnames {
+				if strings.HasSuffix(c, cname) {
+					return &vulnerableDomain{
+						Domain:    r.Domain,
+						Cname:     r.Cnames,
+						Name:      fp.name,
+						Immediate: r.Nxdomain,
+					}
+				}
+			}
+		}
+	}
+	return nil
 }
