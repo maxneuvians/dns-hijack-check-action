@@ -23,7 +23,16 @@ func main() {
 	for _, result := range results.DomainsWithCnames {
 		if matched := matchFingerprints(result); matched != nil {
 			if matched.Immediate {
-				criticalMatches = append(criticalMatches, result)
+				// Secondary check for Azure app service domains
+				if matched.AzureAppService {
+					if azureMatched := checkASUIDRecord(config, matched.Domain); azureMatched {
+						potentialMatches = append(potentialMatches, result)
+					} else {
+						criticalMatches = append(criticalMatches, result)
+					}
+				} else {
+					criticalMatches = append(criticalMatches, result)
+				}
 			} else {
 				potentialMatches = append(potentialMatches, result)
 			}

@@ -138,3 +138,31 @@ func checkDomain(client http.Client, domain string) ([]string, bool, int) {
 
 	return cnames, false, response.Status
 }
+
+func checkASUIDRecord(c *Config, domain string) bool {
+	client := http.Client{
+		Timeout: time.Duration(c.HTTPTimeout) * time.Second,
+	}
+	url := "https://dns.google/resolve?name=asuid." + domain + "&type=TXT"
+	resp, err := client.Get(url)
+
+	if err != nil {
+		return false
+	}
+
+	defer resp.Body.Close()
+
+	var response Response
+
+	err = json.NewDecoder(resp.Body).Decode(&response)
+
+	if err != nil {
+		return false
+	}
+
+	if len(response.Answer) == 0 {
+		return false
+	}
+
+	return true
+}
