@@ -25,10 +25,10 @@ type Response struct {
 }
 
 type result struct {
-	Domain   string
-	Cnames   []string
-	Nxdomain bool
-	Status   int
+	Domain   string   `json:"domain"`
+	Cnames   []string `json:"cnames"`
+	Nxdomain bool     `json:"nxdomain"`
+	Status   int      `json:"status"`
 }
 
 type resultSet struct {
@@ -38,7 +38,7 @@ type resultSet struct {
 	DomainsOther      []result
 }
 
-func checkDomains(c *Config, domains []string) (resultSet, error) {
+func checkDomains(c *Config, domains []string) (resultSet, time.Duration, error) {
 	client := http.Client{
 		Timeout: time.Duration(c.HTTPTimeout) * time.Second,
 	}
@@ -102,7 +102,7 @@ func checkDomains(c *Config, domains []string) (resultSet, error) {
 		Int("Domains with other records", len(resultSet.DomainsOther)).
 		Int("Domains that timed out", len(resultSet.DomainsTimedOut)).
 		Msg("Domains with CNAMEs")
-	return resultSet, nil
+	return resultSet, elapsed, nil
 }
 
 func checkDomain(client http.Client, domain string) ([]string, bool, int) {

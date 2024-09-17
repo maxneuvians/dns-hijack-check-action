@@ -1,5 +1,10 @@
 package main
 
+type stats struct {
+	TotalDomains int    `json:"total_domains"`
+	Elapsed      string `json:"elapsed"`
+}
+
 func main() {
 	// Initialize configuration
 	config := initConfig()
@@ -15,7 +20,7 @@ func main() {
 
 	config.Logger.Info().Int("Domains parsed", len(domains)).Str("File name", config.DomainNameFile).Msg("Parsed domain name file")
 
-	results, _ := checkDomains(config, domains)
+	results, elapsed, _ := checkDomains(config, domains)
 
 	criticalMatches := make([]result, 0)
 	potentialMatches := make([]result, 0)
@@ -54,5 +59,17 @@ func main() {
 		if err != nil {
 			config.Logger.Fatal().Err(err).Msg("Failed to write potential matches to file")
 		}
+	}
+
+	// Write stats to file
+	stats := stats{
+		TotalDomains: len(domains),
+		Elapsed:      elapsed.String(),
+	}
+
+	err = writeStats("stats.json", stats)
+
+	if err != nil {
+		config.Logger.Fatal().Err(err).Msg("Failed to write stats to file")
 	}
 }

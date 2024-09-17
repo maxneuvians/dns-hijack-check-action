@@ -47,3 +47,22 @@ func writeFile(filename string, results []result) error {
 
 	return nil
 }
+
+func writeStats(filename string, stats stats) error {
+	file, err := os.Create(filename)
+	if err != nil {
+		return err
+	}
+
+	defer file.Close()
+
+	// Write the stats to the file as JSON
+	encoder := json.NewEncoder(file)
+	encoder.SetIndent("", "  ")
+	err = encoder.Encode(stats)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
