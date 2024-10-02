@@ -12,11 +12,12 @@ type fingerprint struct {
 }
 
 type vulnerableDomain struct {
-	AzureAppService bool
-	Domain          string
-	Cname           []string
-	Name            string
-	Immediate       bool
+	AzureAppService     bool
+	AzureTrafficManager bool
+	Domain              string
+	Cname               []string
+	Name                string
+	Immediate           bool
 }
 
 var fingerprints = []fingerprint{
@@ -157,6 +158,7 @@ var fingerprints = []fingerprint{
 			"redis.cache.windows.net",
 			"azurehdinsight.net",
 			"servicebus.windows.net",
+			"trafficmanager.net",
 			"visualstudio.com",
 		},
 		nxdomain:    true,
@@ -252,17 +254,23 @@ func matchFingerprints(r result) *vulnerableDomain {
 			for _, c := range r.Cnames {
 				if strings.HasSuffix(c, cname) {
 					isAppService := false
+					isTrafficManager := false
 
 					if cname == "azurewebsites.net" {
 						isAppService = true
 					}
 
+					if cname == "trafficmanager.net" {
+						isTrafficManager = true
+					}
+
 					return &vulnerableDomain{
-						AzureAppService: isAppService,
-						Domain:          r.Domain,
-						Cname:           r.Cnames,
-						Name:            fp.name,
-						Immediate:       r.Nxdomain,
+						AzureAppService:     isAppService,
+						AzureTrafficManager: isTrafficManager,
+						Domain:              r.Domain,
+						Cname:               r.Cnames,
+						Name:                fp.name,
+						Immediate:           r.Nxdomain,
 					}
 				}
 			}

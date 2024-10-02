@@ -1,5 +1,7 @@
 package main
 
+import "regexp"
+
 type stats struct {
 	TotalDomains int    `json:"total_domains"`
 	Elapsed      string `json:"elapsed"`
@@ -25,17 +27,27 @@ func main() {
 	criticalMatches := make([]result, 0)
 	potentialMatches := make([]result, 0)
 
+	var trafficManagerRegex = regexp.MustCompile(`^[^.]+\.trafficmanager\.net$`)
+
 	for _, result := range results.DomainsWithCnames {
 		if matched := matchFingerprints(result); matched != nil {
 			if matched.Immediate {
-				// Secondary check for Azure app service domains
-				if matched.AzureAppService {
+				// Secondary check for certain Azure services
+				switch true {
+				case matched.AzureAppService:
 					if azureMatched := checkASUIDRecord(config, matched.Domain); azureMatched {
 						potentialMatches = append(potentialMatches, result)
 					} else {
 						criticalMatches = append(criticalMatches, result)
 					}
-				} else {
+				case matched.AzureTrafficManager:
+					// Check if the domain is a top level traffic manager domain ex. example.trafficmanager.net
+					if trafficManagerRegex.MatchString(matched.Domain) {
+						criticalMatches = append(criticalMatches, result)
+					} else {
+						potentialMatches = append(potentialMatches, result)
+					}
+				default:
 					criticalMatches = append(criticalMatches, result)
 				}
 			} else {
