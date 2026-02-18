@@ -106,9 +106,13 @@ func checkDomains(c *Config, domains []string) (resultSet, time.Duration, error)
 }
 
 func checkDomain(client http.Client, domain string) ([]string, bool, int) {
+	return checkDomainWithURL(client, domain, "https://dns.google/resolve?name=")
+}
+
+func checkDomainWithURL(client http.Client, domain string, baseURL string) ([]string, bool, int) {
 	var cnames []string
 
-	url := "https://dns.google/resolve?name=" + domain
+	url := baseURL + domain
 	resp, err := client.Get(url)
 
 	if err != nil {
@@ -140,10 +144,14 @@ func checkDomain(client http.Client, domain string) ([]string, bool, int) {
 }
 
 func checkASUIDRecord(c *Config, domain string) bool {
+	return checkASUIDRecordWithURL(c, domain, "https://dns.google/resolve?name=")
+}
+
+func checkASUIDRecordWithURL(c *Config, domain string, baseURL string) bool {
 	client := http.Client{
 		Timeout: time.Duration(c.HTTPTimeout) * time.Second,
 	}
-	url := "https://dns.google/resolve?name=asuid." + domain + "&type=TXT"
+	url := baseURL + "asuid." + domain + "&type=TXT"
 	resp, err := client.Get(url)
 
 	if err != nil {

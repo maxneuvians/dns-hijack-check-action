@@ -7,13 +7,10 @@
 	"containerEnv": {
 		"SHELL": "/bin/zsh"
 	},
-	"features": {
-		"ghcr.io/devcontainers/features/docker-in-docker:2": {},
-	},
 	"extensions": [
 		"redhat.vscode-yaml",
 		"github.copilot",
-        "golang.Go"
+		"golang.Go"
 	],
 	"remoteUser": "vscode"
 }

@@ -1,7 +1,10 @@
-.PHONY: dev release release-test
+.PHONY: dev test release release-test
 
 dev:
 	@go run .
+
+test:
+	@go test -v -race ./...
 
 release:
 	@mkdir -p release/latest
